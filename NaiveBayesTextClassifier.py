@@ -1,4 +1,5 @@
 import json
+import numpy as np
 
 # opens file creates file objects
 train_ldoc = open('trainlabels.txt')
@@ -51,6 +52,11 @@ def word_count():
 
 
 word_count()
+countlist0 = class_dict0.values()
+countlist1 = class_dict1.values()
+totalword0 = sum(countlist0)
+totalword1 = sum(countlist1)
+
 
 with open('outputf.txt', 'w+') as outputf:
     outputf.write(json.dumps(class_dict0))
@@ -60,6 +66,11 @@ with open('outputf.txt', 'w+') as outputf:
     outputf.write('unique words in class 0: ' + str(numwords0))
     outputf.write('\n \n')
     outputf.write('unique words in class 1: ' + str(numwords1))
+    outputf.write('\n \n')
+    outputf.write('total words in class 0: ' + str(totalword0))
+    outputf.write('\n \n')
+    outputf.write('total word in class 1: ' + str(totalword1))
+
 
 # print(train_dlist)
 # print(train_llist)
