@@ -11,8 +11,11 @@ train_llist = train_ldoc.read().splitlines()
 # creates two dictionaries for storing word counts
 class_dict1 = dict()
 class_dict0 = dict()
+listdict0 = []
+listdict1 = []
 numwords0 = 0
 numwords1 = 0
+
 
 
 def check_dict1(a_word):
@@ -39,16 +42,36 @@ def check_dict0(a_word):
         class_dict0[a_word] = wordcount
 
 
+
 def word_count():
     global train_dlist
     global train_llist
+    global listdict0
+    global listdict1
+    doc1count = 0
+    doc0count = 0
+
     for i, phrase in enumerate(train_dlist):
         word_list = phrase.split()
-        for w in word_list:
-            if train_llist[i] == '1':
+        if train_llist[i] == '1':
+            listdict1.append({})
+            doc1count += 1
+            for w in word_list:
                 check_dict1(w)
-            else:
+                if w not in listdict1[doc1count - 1]:
+                    listdict1[doc1count - 1][w] = 1
+                else:
+                    listdict1[doc1count - 1][w] += 1
+        else:
+            listdict0.append({})
+            doc0count += 1
+            for w in word_list:
                 check_dict0(w)
+                if w not in listdict0[doc0count - 1]:
+                    listdict0[doc0count - 1][w] = 1
+                else:
+                    listdict0[doc0count - 1][w] += 1
+
 
 
 word_count()
@@ -62,6 +85,10 @@ with open('outputf.txt', 'w+') as outputf:
     outputf.write(json.dumps(class_dict0))
     outputf.write('\n \n')
     outputf.write((json.dumps(class_dict1)))
+    outputf.write('\n \n')
+    outputf.write(json.dumps(listdict1))
+    outputf.write('\n \n')
+    outputf.write((json.dumps(listdict0)))
     outputf.write('\n \n')
     outputf.write('unique words in class 0: ' + str(numwords0))
     outputf.write('\n \n')
