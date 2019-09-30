@@ -4,8 +4,12 @@ import numpy as np
 # opens file creates file objects
 train_ldoc = open('trainlabels.txt')
 train_ddoc = open('traindata.txt')
+test_ddoc = open('testdata.txt')
+test_ldoc = open('testlabels.txt')
 train_dlist = train_ddoc.read().splitlines()
 train_llist = train_ldoc.read().splitlines()
+test_dlist = test_ddoc.read().splitlines()
+test_llist = test_ldoc.read().splitlines()
 
 
 def check_dict(a_word, a_dict):
@@ -149,15 +153,15 @@ def calc_accuracy(results, corr_answers):
     return num_correct / num_tests
 
 
-class_res = classify_data(train_dlist, train_llist, train_dlist)
-accuracy = calc_accuracy(class_res, train_llist)
+class_res = classify_data(train_dlist, train_llist, test_dlist)
+accuracy = calc_accuracy(class_res, test_llist)
 
 
-with open('outputf.txt', 'w+') as outputf:
-    outputf.write(json.dumps(class_res))
-    outputf.write('\n \n')
-    outputf.write(str(accuracy))
-    outputf.write('\n \n')
+with open('outputf5.txt', 'w+') as outputf5:
+    outputf5.write(json.dumps(class_res))
+    outputf5.write('\n \n')
+    outputf5.write(str(accuracy))
+    outputf5.write('\n \n')
 
 
 
