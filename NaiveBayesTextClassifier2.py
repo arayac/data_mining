@@ -106,50 +106,44 @@ def train_mnb(data, labels):
 
 # expects unk_data as a list of documents that need classifying
 def classify_data(train_data, train_labels, unk_data):
-    doc_res = [0] * len(unk_data)
+    doc_res = ['0'] * len(unk_data)
+    class0_calc = np.zeros(len(unk_data))
+    class1_calc = np.zeros(len(unk_data))
     class0_probs, class1_probs, priori_probs, vocab = train_mnb(train_data, train_labels)
     unk_dict, unk_count, unk_list_dict = create_vocab_dict(unk_data)
-    for d in unk_list_dict:
+    for index,doc in enumerate(unk_list_dict):
+        class0_calc[index] += priori_probs[0]
+        class1_calc [index] += priori_probs[1]
+        for w in doc:
+            if w in vocab:
+                class0_calc[index] += class0_probs.get(w,0)
+                class1_calc[index] += class1_probs.get(w,0)
+    for index, res in enumerate(doc_res):
+        if class1_calc[index] >= class0_calc[index]:
+            doc_res[index] = '1'
+    return doc_res
+
+
+def calc_accuracy(results, corr_answers):
+    num_tests = float(len(corr_answers))
+    num_correct = 0.0
+    for index, res in enumerate(results):
+        if res == corr_answers[index]:
+            num_correct += 1.0
+    return num_correct / num_tests
 
 
 
+class_res = classify_data(train_dlist, train_llist, train_dlist)
+accuracy = calc_accuracy(class_res, train_llist)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-'''
 
 with open('outputf.txt', 'w+') as outputf:
-    outputf.write(json.dumps(class_dict0))
+    outputf.write(json.dumps(class_res))
     outputf.write('\n \n')
-    outputf.write((json.dumps(class_dict1)))
+    outputf.write(str(accuracy))
     outputf.write('\n \n')
-    outputf.write(json.dumps(listdict1))
-    outputf.write('\n \n')
-    outputf.write((json.dumps(listdict0)))
-    outputf.write('\n \n')
-    outputf.write('unique words in class 0: ' + str(numwords0))
-    outputf.write('\n \n')
-    outputf.write('unique words in class 1: ' + str(numwords1))
-    outputf.write('\n \n')
-    outputf.write('total words in class 0: ' + str(totalword0))
-    outputf.write('\n \n')
-    outputf.write('total word in class 1: ' + str(totalword1))
 
-'''
-# print(train_dlist)
-# print(train_llist)
 
 
