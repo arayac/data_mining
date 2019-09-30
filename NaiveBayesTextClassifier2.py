@@ -21,6 +21,16 @@ def check_dict(a_word, a_dict):
     return a_dict
 
 
+def create_vocab_list(dict0, dict1):
+    vocab_list = []
+    for key in dict0:
+        vocab_list.append(key)
+    for key in dict1:
+        if key not in vocab_list:
+            vocab_list.append(key)
+    return vocab_list
+
+
 # assumes a 1:1 relationship between the data and labels i.e. label[i] corresponds to data[i] for all i, i >= 0
 # extract label is the label you want to break off from the data i.e. '1' or '0' in this case
 def isolate_data(data, labels, extract_label):
@@ -34,12 +44,18 @@ def isolate_data(data, labels, extract_label):
 def create_vocab_dict(data):
     vocab_dict = dict()
     doccount = 0
+    listdict = []
     for phrase in data:
         word_list = phrase.split()
         doccount += 1
+        listdict.append({})
         for w in word_list:
             vocab_dict = check_dict(w, vocab_dict)
-    return vocab_dict, doccount
+            if w not in listdict[doccount - 1]:
+                listdict[doccount - 1][w] = 1
+            else:
+                listdict[doccount - 1][w] += 1
+    return vocab_dict, doccount, listdict
 
 
 def calc_prior_prob(num_class0, num_class1):
@@ -80,11 +96,26 @@ def calc_cond_probs(class_dict0, class_dict1):
 def train_mnb(data, labels):
     doc_list0 = isolate_data(data, labels, '0')
     doc_list1 = isolate_data(data, labels, '1')
-    dict0, doc0count = create_vocab_dict(doc_list0)
-    dict1, doc1count = create_vocab_dict(doc_list1)
+    dict0, doc0count, listdict0 = create_vocab_dict(doc_list0)
+    dict1, doc1count, listdict1 = create_vocab_dict(doc_list1)
+    vocab = create_vocab_list(dict0, dict1)
     priori_probs = calc_prior_prob(doc0count, doc1count)
     class0_probs, class1_probs, vocabsize, = calc_cond_probs(dict0, dict1)
-    return class0_probs, class1_probs, priori_probs, vocabsize
+    return class0_probs, class1_probs, priori_probs, vocab
+
+
+# expects unk_data as a list of documents that need classifying
+def classify_data(train_data, train_labels, unk_data):
+    doc_res = [0] * len(unk_data)
+    class0_probs, class1_probs, priori_probs, vocab = train_mnb(train_data, train_labels)
+    unk_dict, unk_count, unk_list_dict = create_vocab_dict(unk_data)
+    for d in unk_list_dict:
+
+
+
+
+
+
 
 
 
