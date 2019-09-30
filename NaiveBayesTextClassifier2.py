@@ -4,13 +4,8 @@ import numpy as np
 # opens file creates file objects
 train_ldoc = open('trainlabels.txt')
 train_ddoc = open('traindata.txt')
-
-# reads the file and splits the lines of text into a list
 train_dlist = train_ddoc.read().splitlines()
 train_llist = train_ldoc.read().splitlines()
-# creates two dictionaries for storing word counts...
-# class_dicts are dictionaries of all the differents word there length = num of words in that class
-# list dict is a list of dictnaries for each document it's length is the number of documents of that class
 
 
 def check_dict(a_word, a_dict):
@@ -27,7 +22,16 @@ def check_dict(a_word, a_dict):
 
 
 # assumes a 1:1 relationship between the data and labels i.e. label[i] corresponds to data[i] for all i, i >= 0
-def create_vocab_dict(data, labels):
+# extract label is the label you want to break off from the data i.e. '1' or '0' in this case
+def isolate_data(data, labels, extract_label):
+    isolated_data = []
+    for index, doc in enumerate(data):
+        if labels[index] == extract_label:
+            isolated_data.append(doc)
+    return isolated_data
+
+
+def create_vocab_dict(data):
     vocab_dict = dict()
     doccount = 0
     for phrase in data:
@@ -64,12 +68,24 @@ def calc_cond_probs(class_dict0, class_dict1):
     countlist1 = class_dict1.values()
     totalwords0 = sum(countlist0)
     totalwords1 = sum(countlist1)
+    vocab_sizes = vocab_size(class_dict0, class_dict1)
     for key in class_dict1:
-        class1_prob[key] = np.log((class_dict1[key] + 1) / (totalwords1 + vocab_size()[2]))
+        class1_prob[key] = np.log((class_dict1[key] + 1) / (totalwords1 + vocab_sizes[2]))
     for key in class_dict0:
-        class0_prob[key] = np.log((class_dict0[key] + 1) / (totalwords0 + vocab_size()[2]))
+        class0_prob[key] = np.log((class_dict0[key] + 1) / (totalwords0 + vocab_sizes[2]))
 
-    return class0_prob, class1_prob
+    return class0_prob, class1_prob, vocab_sizes[2]
+
+
+def train_mnb(data, labels):
+    doc_list0 = isolate_data(data, labels, '0')
+    doc_list1 = isolate_data(data, labels, '1')
+    dict0, doc0count = create_vocab_dict(doc_list0)
+    dict1, doc1count = create_vocab_dict(doc_list1)
+    priori_probs = calc_prior_prob(doc0count, doc1count)
+    class0_probs, class1_probs, vocabsize, = calc_cond_probs(dict0, dict1)
+    return class0_probs, class1_probs, priori_probs, vocabsize
+
 
 
 
