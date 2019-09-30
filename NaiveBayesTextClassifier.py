@@ -17,7 +17,6 @@ listdict0 = []
 listdict1 = []
 
 
-
 def check_dict1(a_word):
     global class_dict1
     if a_word not in class_dict1:
@@ -46,6 +45,7 @@ def word_count():
     global listdict1
     doc1count = 0
     doc0count = 0
+    stop_words = ['and', 'as', 'the', 'is', 'a' ]
     for i, phrase in enumerate(train_dlist):
         word_list = phrase.split()
         if train_llist[i] == '1':
@@ -66,33 +66,53 @@ def word_count():
                     listdict0[doc0count - 1][w] = 1
                 else:
                     listdict0[doc0count - 1][w] += 1
-    class_dict1.pop('a', 0)
-    class_dict1.pop('and', 0)
-    class_dict1.pop('the', 0)
-    class_dict1.pop('is', 0)
-    class_dict0.pop('a', 0)
-    class_dict0.pop('and', 0)
-    class_dict0.pop('the', 0)
-    class_dict0.pop('is', 0)
+    for i in stop_words:
+        class_dict1.pop(i, 0)
+        class_dict0.pop(i, 0)
 
 
 def calc_prior_prob():
     global train_llist
     prior_probs = [0.0, 0.0]
     denom = len(listdict0) + len(listdict1)
-    prior_probs[0] = (float(len(listdict0)) / float(denom))
-    prior_probs[1] = (float(len(listdict1)) / float(denom))
-    print(prior_probs)
+    prior_probs[0] = np.log((float(len(listdict0)) / float(denom)))
+    prior_probs[1] = np.log((float(len(listdict1)) / float(denom)))
     return prior_probs
 
 
 def vocab_size():
-    return (len(class_dict0) + len(class_dict1))
+    vocab1_size = len(class_dict1)
+    vocab0_size = len(class_dict0)
+    vocabsize = len(class_dict0)
+
+    for key in class_dict1:
+        if key not in class_dict0:
+            vocabsize += 1
+    return vocab0_size, vocab1_size, vocabsize
 
 
+# should vocabulary be the vocabulary of both classes or the respective class
 def calc_cond_probs():
     global class_dict1
     global class_dict0
+    class0_prob = dict()
+    class1_prob = dict()
+    countlist0 = class_dict0.values()
+    countlist1 = class_dict1.values()
+    totalwords0 = sum(countlist0)
+    totalwords1 = sum(countlist1)
+
+    for key in class_dict1:
+        class1_prob[key] = np.log((class_dict1[key] + 1) / (totalwords1 + vocab_size()[2]))
+    for key in class_dict0:
+        class0_prob[key] = np.log((class_dict0[key] + 1) / (totalwords0 + vocab_size()[2]))
+
+    return class0_prob, class1_prob
+
+
+
+
+
 
 
 
@@ -100,10 +120,7 @@ def calc_cond_probs():
 
 word_count()
 calc_prior_prob()
-countlist0 = class_dict0.values()
-countlist1 = class_dict1.values()
-totalword0 = sum(countlist0)
-totalword1 = sum(countlist1)
+
 
 
 '''
