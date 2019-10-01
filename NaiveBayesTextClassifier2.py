@@ -13,7 +13,7 @@ test_llist = test_ldoc.read().splitlines()
 
 
 def check_dict(a_word, a_dict):
-    stop_words = ['and', 'as', 'the', 'is', 'a' ]
+    stop_words = ['and', 'as', 'the', 'is', 'a','of','it','to', 'you', 'are','so']
     if a_word in stop_words:
         return a_dict
     elif a_word not in a_dict:
