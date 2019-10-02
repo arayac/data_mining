@@ -13,7 +13,7 @@ test_llist = test_ldoc.read().splitlines()
 
 
 def check_dict(a_word, a_dict):
-    stop_words = ['and', 'as', 'the', 'is', 'a','of','it','to', 'you', 'are','so']
+    stop_words = ['and', 'as', 'the', 'is', 'a', 'of', 'it', 'to', 'you', 'are', 'so']
     if a_word in stop_words:
         return a_dict
     elif a_word not in a_dict:
@@ -65,11 +65,8 @@ def create_vocab_dict(data):
 def calc_prior_prob(num_class0, num_class1):
     prior_probs = [0.0, 0.0]
     denom = num_class0 + num_class1
-    print(num_class0)
-    print(num_class1)
     prior_probs[0] = (float(num_class0) / float(denom))
     prior_probs[1] = (float(num_class1) / float(denom))
-    print(prior_probs)
     return prior_probs
 
 
@@ -130,7 +127,6 @@ def classify_data(train_data, train_labels, unk_data):
     class0_probs, class1_probs, priori_probs, vocab, totalwords = train_mnb(train_data, train_labels)
     missing_word_prob = 1.0 / float(totalwords)
     unk_dict, unk_count, unk_list_dict = create_vocab_dict(unk_data)
-    print(unk_list_dict)
     for index,doc in enumerate(unk_list_dict):
         class0_calc[index] += np.log(priori_probs[0])
         class1_calc [index] += np.log(priori_probs[1])
@@ -153,15 +149,25 @@ def calc_accuracy(results, corr_answers):
     return num_correct / num_tests
 
 
+class_res_train = classify_data(train_dlist, train_llist, train_dlist)
+accuracy_train = calc_accuracy(class_res_train, train_llist)
 class_res = classify_data(train_dlist, train_llist, test_dlist)
 accuracy = calc_accuracy(class_res, test_llist)
 
 
-with open('outputf5.txt', 'w+') as outputf5:
-    outputf5.write(json.dumps(class_res))
-    outputf5.write('\n \n')
-    outputf5.write(str(accuracy))
-    outputf5.write('\n \n')
+with open('results.txt', 'w+') as results:
+    results.write('Results for Test on Training Data:')
+    results.write(json.dumps(class_res_train))
+    results.write('\n \n')
+    results.write('Accuracy:')
+    results.write(str(accuracy_train))
+    results.write('\n \n')
+    results.write('Results for Test on Testing Data:')
+    results.write(json.dumps(class_res))
+    results.write('\n \n')
+    results.write('Accuracy:')
+    results.write(str(accuracy))
+    results.write('\n \n')
 
 
 
